@@ -14,40 +14,36 @@ import (
 //Creamos una constante (como mi variable "q") para ejecutar las querys.
 const (
 	//CONSTAINT: por defecto se pone asi: nombreTabla_nombreColumna_primaryKey/foreignKey
-	MigrateProduct = `CREATE TABLE IF NOT EXISTS products(
-		id SERIAL NOT NULL,
+	mySQLMigrateProduct = `CREATE TABLE IF NOT EXISTS products(
+		id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
 		name VARCHAR(25) NOT NULL,
 		observations VARCHAR(100),
 		price INT NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT now(),
-		updated_at TIMESTAMP,
-		CONSTRAINT products_id_pk PRIMARY KEY (id)
-
-	) `
-	//returning id nos devuelve el ID despues de realizar la inserción.
-	psqlCreateProduct  = `INSERT INTO products(name,observations,price,created_at) VALUES($1,$2,$3,$4) RETURNING id`
-	psqlGetAllProduct  = `SELECT id, name, observations, price, created_at, updated_at FROM products`
-	psqlGetProductById = `SELECT * FROM products WHERE ID = $1`
-	psqlUpdateProduct  = `UPDATE products SET name = $1, observations = $2, price = $3, updated_at = now() WHERE id = $4`
-	psqlDeleteProduct  = `DELETE FROM products WHERE id = $1`
+		updated_at TIMESTAMP	) `
+	mySQLCreateProduct = `INSERT INTO products(name, observations, price) VALUES(?,?,?)`
+	mySQLGetAll        = `SELECT * FROM products`
+	mySQLGetById       = `SELECT * FROM products WHERE id = ?`
+	mySQLUpdate        = `UPDATE products SET name = ?, observations = ?, price = ?, updated_at = now() WHERE ID = ?`
+	mySQLDelete        = `DELETE FROM products WHERE id = ?`
 )
 
-var obsNull = sql.NullString{}
-var updatedAtNull = sql.NullTime{}
+/* var obsNull = sql.NullString{}
+var updatedAtNull = sql.NullTime{} */
 
-//PsqlProduct nos genera la variable db para interactuar con la base de datos.
-type PsqlProduct struct {
+//mySqlProduct nos genera la variable db para interactuar con la base de datos.
+type mySqlProduct struct {
 	db *sql.DB
 }
 
-//NewPsqlProduct retorna un nuevo puntero de PsqlProduct
-func newPsqlProduct(db *sql.DB) *PsqlProduct {
-	return &PsqlProduct{db}
+//NewmySqlProduct retorna un nuevo puntero de mySqlProduct
+func newMySqlProduct(db *sql.DB) *mySqlProduct {
+	return &mySqlProduct{db}
 }
 
 //Migrate crea la tabla Products en la base de datos
-func (p *PsqlProduct) Migrate() error {
-	stmt, err := p.db.Prepare(MigrateProduct)
+func (p *mySqlProduct) Migrate() error {
+	stmt, err := p.db.Prepare(mySQLMigrateProduct)
 	if err != nil {
 		return err
 	}
@@ -62,26 +58,34 @@ func (p *PsqlProduct) Migrate() error {
 	return nil
 }
 
-func (p *PsqlProduct) Create(m *product.Model) error {
-	stmt, err := p.db.Prepare(psqlCreateProduct)
+func (p *mySqlProduct) Create(m *product.Model) error {
+	if m.Name == "" {
+		return errors.New("the name can't be empty")
+	}
+	stmt, err := p.db.Prepare(mySQLCreateProduct)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
 	m.CreatedAt = time.Now()
-	err = stmt.QueryRow(m.Name, stringToNull(m.Observaciones), m.Price, m.CreatedAt).Scan(&m.ID)
+	res, err := stmt.Exec(m.Name, stringToNull(m.Observaciones), m.Price)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Se creó el producto correctamente.")
+	r, _ := res.RowsAffected()
+	if r != 1 {
+		return errors.New("error: more than 1 (or 0) rows affected")
+	}
+	id, _ := res.LastInsertId()
+	m.ID = uint(id)
+	fmt.Printf("The product was created succesfully. ID: %d\n", m.ID)
 	fmt.Printf("%+v\n", m)
 	return nil
 }
 
-func (p *PsqlProduct) GetAll() (product.Models, error) {
-	stmt, err := p.db.Prepare(psqlGetAllProduct)
+func (p *mySqlProduct) GetAll() (product.Models, error) {
+	stmt, err := p.db.Prepare(mySQLGetAll)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +116,8 @@ func (p *PsqlProduct) GetAll() (product.Models, error) {
 
 }
 
-func (p *PsqlProduct) GetById(i uint) (*product.Model, error) {
-	stmt, err := db.Prepare(psqlGetProductById)
+func (p *mySqlProduct) GetById(i uint) (*product.Model, error) {
+	stmt, err := db.Prepare(mySQLGetById)
 	if err != nil {
 		return nil, err
 	}
@@ -129,8 +133,9 @@ func (p *PsqlProduct) GetById(i uint) (*product.Model, error) {
 	return m, nil
 }
 
-func (p *PsqlProduct) Update(m *product.Model) error {
-	stmt, err := db.Prepare(psqlUpdateProduct)
+func (p *mySqlProduct) Update(m *product.Model) error {
+
+	stmt, err := db.Prepare(mySQLUpdate)
 	if err != nil {
 		return err
 	}
@@ -152,8 +157,8 @@ func (p *PsqlProduct) Update(m *product.Model) error {
 	return nil
 }
 
-func (p *PsqlProduct) Delete(id uint) error {
-	stmt, err := db.Prepare(psqlDeleteProduct)
+func (p *mySqlProduct) Delete(id uint) error {
+	stmt, err := db.Prepare(mySQLDelete)
 	if err != nil {
 		return err
 	}

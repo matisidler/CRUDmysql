@@ -32,6 +32,7 @@ func NewService(s Storage) *Service {
 func (s *Service) Migrate() error {
 	return s.storage.Migrate()
 }
+
 func (s *Service) CreateTx(t *sql.Tx, m *Model) error {
 	return s.storage.CreateTx(t, m)
 }
