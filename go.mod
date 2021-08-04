@@ -1,4 +1,4 @@
-module github.com/matisidler/CRUDpqv2
+module github.com/matisidler/CRUDmysql
 
 go 1.16
 

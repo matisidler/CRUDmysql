@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/matisidler/CRUDpqv2/pkg/invoice"
-	"github.com/matisidler/CRUDpqv2/pkg/invoiceheader"
-	"github.com/matisidler/CRUDpqv2/pkg/invoiceitem"
+	"github.com/matisidler/CRUDmysql/pkg/invoice"
+	"github.com/matisidler/CRUDmysql/pkg/invoiceheader"
+	"github.com/matisidler/CRUDmysql/pkg/invoiceitem"
 )
 
 type mySqlInvoice struct {

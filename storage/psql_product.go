@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/matisidler/CRUDpqv2/pkg/product"
+	"github.com/matisidler/CRUDmysql/pkg/product"
 )
 
 //Creamos una constante (como mi variable "q") para ejecutar las querys.

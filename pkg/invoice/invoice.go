@@ -1,8 +1,8 @@
 package invoice
 
 import (
-	"github.com/matisidler/CRUDpqv2/pkg/invoiceheader"
-	"github.com/matisidler/CRUDpqv2/pkg/invoiceitem"
+	"github.com/matisidler/CRUDmysql/pkg/invoiceheader"
+	"github.com/matisidler/CRUDmysql/pkg/invoiceitem"
 )
 
 type Model struct {

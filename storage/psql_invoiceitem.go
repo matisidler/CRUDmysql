@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/matisidler/CRUDpqv2/pkg/invoiceitem"
+	"github.com/matisidler/CRUDmysql/pkg/invoiceitem"
 )
 
 //Creamos una constante (como mi variable "q") para ejecutar las querys.

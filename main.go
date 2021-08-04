@@ -3,16 +3,21 @@ package main
 import (
 	"fmt"
 
-	"github.com/matisidler/CRUDpqv2/storage"
+	"github.com/matisidler/CRUDmysql/storage"
 )
 
 func main() {
-	storage.NewConnection(storage.MySQL)
-	serviceProduct, err := storage.DAOProduct(storage.MySQL)
+	storage.NewConnection(storage.Postgres)
+	serviceProduct, err := storage.DAOProduct(storage.Postgres)
 	if err != nil {
 		fmt.Println(err)
 	}
-	serviceProduct.GetAll()
+	ms, err := serviceProduct.GetAll()
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(ms)
+	}
 
 }
 

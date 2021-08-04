@@ -10,7 +10,8 @@ import (
 	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/matisidler/CRUDpqv2/pkg/product"
+	_ "github.com/lib/pq"
+	"github.com/matisidler/CRUDmysql/pkg/product"
 )
 
 //Creamos la conexión a la BD.
@@ -54,7 +55,7 @@ func newPqDB() *sql.DB {
 		if err != nil {
 			log.Fatalf("can't do ping: %v", err)
 		}
-		fmt.Println("Conectado a MySQL.")
+		fmt.Println("Conectado a Postgres.")
 	})
 	return db
 }
